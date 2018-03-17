@@ -22,23 +22,23 @@ public class CircularList<E> extends ArrayList<E> {
 
 	@Override
 	public E get(int index) {
-		if (index >= size()) {
-			index =  index % size();
-		} else if (index < 0) {
-			index =  (size() + index) % size();
-		} 
-		return super.get(index);
+		int realIndex = getZeroBasedIndex(index);
+		return super.get(realIndex);
 	}
 	
 	
-	public boolean isEquivalentIndexes(final int indexA, final int indexB) {
-		if (indexB >= size()) {
-			return indexA == indexB % size();
-		} else if (indexA < 0) {
-			return indexA ==  (size() + indexB) % size();
+	public int getZeroBasedIndex(final int index) {
+		if (isEmpty()) {
+			return size();
 		}
 		
-		return indexA == indexB;
+ 		if (index >= size()) {
+			return index % size();
+		} else if (index < 0) {
+			return (size() + index) % size();
+		} 
+		
+		return index;
 	}
 	
 }

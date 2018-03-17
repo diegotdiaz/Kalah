@@ -4,7 +4,6 @@
 package com.backbase.kalah.game;
 
 import java.util.Random;
-import java.util.stream.IntStream;
 
 import lombok.Data;
 
@@ -18,56 +17,92 @@ public class Game {
 	private Board board;
 	private Player turn;
 	
-	public Game(final int seedNumber) {
-		this.board = new Board(seedNumber);
+	/**
+	 * Constructor.
+	 * @param numOfSeeds number of seeds for pits.
+	 */
+	public Game(final int numOfSeeds) {
+		this.board = new Board(numOfSeeds);
 		chooseStartingPlayer();
 	}
 	
 	/**
-	 * Makes a move for the specified player, from the specified house in the board.
+	 * Makes a move for the specified player, from the specified pit in the board.
 	 * @param player player.
-	 * @param houseIndex house Index, 1-based index.
+	 * @param pitIndex house Index, 1-based index.
 	 */
-	private void move(final Player player, final int houseIndex) {
-		validateMove(player, houseIndex);
+	public void move(final Player player, final int pitIndex) {
+		validateMove(player, pitIndex);
 		
-		int startIndex = player.equals(Player.PLAYER_1) ? houseIndex - 1 :  houseIndex + 6;
+		int startIndex = player.equals(Player.PLAYER_1) ? pitIndex - 1 :  pitIndex + 6;
 		
-		int seeds = board.getPitList().get(startIndex);
+		int seeds = board.getSeedsInPit(startIndex);
+		board.removeSeedsInPit(startIndex);
 		
-		for (int i = startIndex; seeds > 0; seeds--) {
-			int seedCount = board.getPitList().get(i);
+		for (int i = startIndex + 1; seeds > 0; i++, seeds--) {
+			int index =  board.resolvePitIndex(i);
+			int seedCount = board.getSeedsInPit(index);
 			
-			//TODO Look at index resolving for macalas
-			if ((i == Board.P1_MACALA_INDEX && player.equals(Player.PLAYER_2)) ||
-					i == Board.P2_MACALA_INDEX && player.equals(Player.PLAYER_1)) {
+			if ((index == Board.MACALA_INDEX_P1 && player.equals(Player.PLAYER_2)) ||
+					index == Board.MACALA_INDEX_P2 && player.equals(Player.PLAYER_1)) {
 				seeds += 1;
 				continue;
 			}
-	
-			board.getPitList().set(i, seedCount + 1);
-		
 			
-			if (seeds == 0 && !((i == Board.P1_MACALA_INDEX && player.equals(Player.PLAYER_1)) || 
-					(i == Board.P2_MACALA_INDEX && player.equals(Player.PLAYER_2)))) {
+			if (seeds == 0 && board.getSeedsInPit(index) == 0) {
+				int seedsInFront = board.getSeedsInFrontPit(index);
+				int macalaIndex = player.equals(Player.PLAYER_1) ? Board.MACALA_INDEX_P1 : Board.MACALA_INDEX_P2;
+				board.setSeedsInPit(macalaIndex, seedsInFront + 1);
+				board.removeSeedsInFrontPit(index);
+			} else {
+				board.setSeedsInPit(index, seedCount + 1);
+			}
+			
+			if (seeds == 0 && !((index == Board.MACALA_INDEX_P1 && player.equals(Player.PLAYER_1)) || 
+					(index == Board.MACALA_INDEX_P2 && player.equals(Player.PLAYER_2)))) {
 				switchTurn();
 			}
-		}
-				
+		}		
+		
 	}
 	
+	public Score getScore() {
+		return Score.getInstance(board);
+	}
+	
+	/**
+	 * Determines whether teh game is finished
+	 * @return boolean
+	 */
+	private boolean isGameFinished() {
+		return false;
+	}
+	
+	/**
+	 * Switch's turns between players.
+	 */
 	private void switchTurn() {
 		this.turn = this.turn.equals(Player.PLAYER_1) ? Player.PLAYER_2: Player.PLAYER_1;
 	}
 	
+	/**
+	 * Chooses randomly the starting player.
+	 */
 	private void chooseStartingPlayer() {
-		this.turn = Player.values()[new Random(Player.values().length).nextInt()];
+		this.turn = Player.values()[new Random().nextInt(Player.values().length)];
 	}
 	
-	
-	public void validateMove(final Player player, final int houseIndex) {	
-	
-		boolean validHouseIndex = IntStream.rangeClosed(1, 6).anyMatch(i -> i == houseIndex);
+	/**
+	 * 
+	 * @param player
+	 * @param pitIndex
+	 */
+	public void validateMove(final Player player, final int pitIndex) {	
+		if (isGameFinished()) {
+			throw new IllegalArgumentException("Game is finished");
+		}
+		
+		boolean validHouseIndex = true;
 		
 		if (!validHouseIndex) {
 			throw new IllegalArgumentException(String.format("Illegal move, %s may only take seeds from small pits", player));
@@ -82,7 +117,7 @@ public class Game {
 		boolean playerTurn = turn.equals(player);
 		
 		if (!playerTurn) {
-			throw new IllegalArgumentException(String.format("It' not %s turn", player));
+//			throw new IllegalArgumentException(String.format("It' not %s turn", player));
 		}
 		
 	}

@@ -3,7 +3,13 @@
  */
 package com.backbase.kalah.game;
 
+import lombok.AccessLevel;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
+
+import org.apache.commons.lang.math.IntRange;
+import org.apache.commons.lang.math.Range;
 
 import com.backbase.kalah.util.CircularList;
 
@@ -14,20 +20,27 @@ import com.backbase.kalah.util.CircularList;
 @Data
 public class Board {
 	
-	private static final int NUM_OF_PITS = 12;
-	private static final int NUM_OF_MACALA = 2;
+	public static final int NUM_OF_PITS = 12;
+	public static final int NUM_OF_MACALA = 2;
 	
-	public static final int P1_MACALA_INDEX = 6;
-	public static final int P2_MACALA_INDEX = 13;
+	public static final int MACALA_INDEX_P1 = 6;
+	public static final int MACALA_INDEX_P2 = 13;
+	
+	public static final Range PIT_RANGE_P1 = new IntRange(0, 5);
+	public static final Range PIT_RANGE_P2 = new IntRange(7, 12);
 
 	private final int seedNumber;
+	
+	@Setter(value = AccessLevel.NONE)
+	@Getter(value = AccessLevel.NONE)
 	private CircularList<Integer> pitList;
 
 	
-	public Board(final int seedNumber) {
+	public Board(int seedNumber) {
 		this.seedNumber = seedNumber;
 		pitList = new CircularList<Integer>(NUM_OF_PITS + NUM_OF_MACALA);
 		initalizePitList();
+		
 	}
 	
 	/**
@@ -35,14 +48,70 @@ public class Board {
 	 * with no seeds
 	 */
 	private void initalizePitList() {
-		for (int i = 0; i < pitList.size(); i++) {
-			if  (!pitList.isEquivalentIndexes(P1_MACALA_INDEX, i) && 
-					!pitList.isEquivalentIndexes(P2_MACALA_INDEX, i)) {
-				pitList.set(i, this.seedNumber);
+		for (int i = 0; i < NUM_OF_PITS + NUM_OF_MACALA; i++) {
+			if  (i == MACALA_INDEX_P1 || i == Board.MACALA_INDEX_P2) {
+				pitList.add(0);
 			} else {
-				pitList.set(i, 0);
+				pitList.add(this.seedNumber);	
 			}
 		}	
 	}
+	
+	/**
+	 * 
+	 * @param index
+	 * @return
+	 */
+	public int getSeedsInFrontPit(final int index) {
+		int frontIndex = NUM_OF_PITS - index;
+		return pitList.get(frontIndex);
+	}
+	
+	/**
+	 * 
+	 * @param index
+	 * @return
+	 */
+	public void setSeedsInPit(final int index, final int seeds) {
+		pitList.set(index, seeds);
+	}
+	
+	/**
+	 * 
+	 * @param index
+	 * @return
+	 */
+	public void removeSeedsInPit(final int index) {
+		pitList.set(index, 0);
+	}
+	
+	/**
+	 * 
+	 * @param index
+	 * @return
+	 */
+	public void removeSeedsInFrontPit(final int index) {
+		int frontIndex = NUM_OF_PITS - index;
+		pitList.set(frontIndex, 0);
+	}
+	
+	/**
+	 * 
+	 * @param index
+	 * @return
+	 */
+	public int getSeedsInPit(final int index) {
+		return pitList.get(index);
+	}
+	
+	/**
+	 * 
+	 * @param relativeIndex
+	 * @return
+	 */
+	public int resolvePitIndex(int relativeIndex) {
+		return pitList.getZeroBasedIndex(relativeIndex);
+	}
+	
 	
 }
