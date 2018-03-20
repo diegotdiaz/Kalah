@@ -1,11 +1,12 @@
-/**
- * 
- */
 package com.backbase.kalah.game;
 
 import java.util.Random;
+import java.util.UUID;
+import java.util.stream.IntStream;
 
+import lombok.AccessLevel;
 import lombok.Data;
+import lombok.Setter;
 
 /**
  * @author dtoro
@@ -14,16 +15,38 @@ import lombok.Data;
 @Data
 public class Game {
 
+	@Setter(value = AccessLevel.PRIVATE)
+	private String id;
+	
+	@Setter(value = AccessLevel.PRIVATE)
 	private Board board;
+	
+	@Setter(value = AccessLevel.PRIVATE)
 	private Player turn;
+	
+	@Setter(value = AccessLevel.PRIVATE)
+	private Status status;
 	
 	/**
 	 * Constructor.
 	 * @param numOfSeeds number of seeds for pits.
 	 */
 	public Game(final int numOfSeeds) {
+		checkValidSeedNum(numOfSeeds);
+		this.id = UUID.randomUUID().toString();
 		this.board = new Board(numOfSeeds);
+		this.status = Status.STARTED;
 		chooseStartingPlayer();
+	}
+	
+	/**
+	 * Checks whether number of seeds is grater than zero
+	 * @param numOfSeeds
+	 */
+	private void checkValidSeedNum(final int numOfSeeds) {
+		if (numOfSeeds <= 0) {
+			throw new IllegalArgumentException("Number of seeds mmust be grater than zero");
+		}
 	}
 	
 	/**
@@ -32,7 +55,7 @@ public class Game {
 	 * @param pitIndex house Index, 1-based index.
 	 */
 	public void move(final Player player, final int pitIndex) {
-		validateMove(player, pitIndex);
+		validateMove(player, pitIndex - 1);
 		
 		int startIndex = player.equals(Player.PLAYER_1) ? pitIndex - 1 :  pitIndex + 6;
 		
@@ -58,24 +81,45 @@ public class Game {
 				board.setSeedsInPit(index, seedCount + 1);
 			}
 			
-			if (seeds == 0 && !((index == Board.MACALA_INDEX_P1 && player.equals(Player.PLAYER_1)) || 
+			if (seeds == 1 && !((index == Board.MACALA_INDEX_P1 && player.equals(Player.PLAYER_1)) || 
 					(index == Board.MACALA_INDEX_P2 && player.equals(Player.PLAYER_2)))) {
 				switchTurn();
 			}
-		}		
+		}
+		
+		updateGameStatus();
 		
 	}
 	
+	
+	/**
+	 * Returns gae's score
+	 * @return Score
+	 */
 	public Score getScore() {
 		return Score.getInstance(board);
 	}
 	
 	/**
-	 * Determines whether teh game is finished
+	 * Updates game status according the number of seens in players pits
+	 */
+	private void updateGameStatus() {
+		boolean p1Finished = IntStream.rangeClosed(Board.PIT_RANGE_P1.getMinimumInteger(), Board.PIT_RANGE_P1.getMaximumInteger())
+				.allMatch(i -> board.getSeedsInPit(i) == 0);
+			
+		boolean p2Finished = IntStream.rangeClosed(Board.PIT_RANGE_P2.getMinimumInteger(),  Board.PIT_RANGE_P2.getMaximumInteger())
+				.allMatch(i -> board.getSeedsInPit(i) == 0);
+		
+		Status status = p1Finished || p2Finished ? Status.FINISHED :  Status.STARTED;
+		setStatus(status);
+	}
+	
+	/**
+	 * Determines whether the game is finished
 	 * @return boolean
 	 */
 	private boolean isGameFinished() {
-		return false;
+		return status.equals(Status.FINISHED);
 	}
 	
 	/**
@@ -93,7 +137,7 @@ public class Game {
 	}
 	
 	/**
-	 * 
+	 * Validates whether a move is legal or not
 	 * @param player
 	 * @param pitIndex
 	 */
@@ -102,22 +146,17 @@ public class Game {
 			throw new IllegalArgumentException("Game is finished");
 		}
 		
-		boolean validHouseIndex = true;
-		
-		if (!validHouseIndex) {
-			throw new IllegalArgumentException(String.format("Illegal move, %s may only take seeds from small pits", player));
-		}
-		
-		boolean validPlayer =  Player.valueOf(player.toString()) != null;
-		
-		if (!validPlayer) {
-			throw new IllegalArgumentException(String.format("Unknown player: %s", player));
-		}
-		
 		boolean playerTurn = turn.equals(player);
 		
 		if (!playerTurn) {
-//			throw new IllegalArgumentException(String.format("It' not %s turn", player));
+			throw new IllegalArgumentException(String.format("It' not %s's turn", player));
+		}
+		
+		boolean validHouseIndex = Board.PIT_RANGE_P1.containsInteger(pitIndex - 1);
+		
+		if (!validHouseIndex) {
+			throw new IllegalArgumentException(String.format("Illegal move, %s may only take seeds from pit %d to %", 
+					player, Board.PIT_RANGE_P1.getMinimumInteger(), Board.PIT_RANGE_P1.getMaximumInteger()));
 		}
 		
 	}

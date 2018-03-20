@@ -1,4 +1,4 @@
-package com.backbase.kalah.resource;
+package com.backbase.kalah.controller;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -13,6 +13,6 @@ public class StatusController {
 	@ResponseBody
 	@RequestMapping(method = RequestMethod.GET)
 	public ResponseEntity<String> status() {
-		return ResponseEntity.ok("Kalah is Up");
+		return ResponseEntity.ok("Kalah App is Up");
 	}
 }
