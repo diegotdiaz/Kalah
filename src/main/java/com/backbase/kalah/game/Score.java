@@ -24,7 +24,7 @@ public final class Score {
 	
 	@Setter(value = AccessLevel.NONE)
 	@Getter(value = AccessLevel.NONE)
-	private Board board;
+	private KalahBoard board;
 	
 	@Setter(value = AccessLevel.NONE)
 	private List<Integer> boardP1 = new ArrayList<>();;
@@ -37,20 +37,23 @@ public final class Score {
 	 * Constructor.
 	 * @param board board.
 	 */
-	private Score(@NonNull Board board) {
+	private Score(@NonNull KalahBoard board) {
 		this.board = board;
 		initializeBoards();
 	}
 	
-	public static Score getInstance(Board board) {
+	public static Score getInstance(KalahBoard board) {
 		return new Score(board);
 	}
-		
+	
+	/**
+	 * Initializes each player's board with their corresponding score
+	 */
 	private void initializeBoards() {
-		IntStream.rangeClosed(Board.PIT_RANGE_P1.getMinimumInteger(), Board.MACALA_INDEX_P1)
+		IntStream.rangeClosed(KalahBoard.PIT_RANGE_P1.getMinimumInteger(), KalahBoard.MACALA_INDEX_P1)
 			.forEach(i -> boardP1.add(board.getSeedsInPit(i)));
 		
-		IntStream.rangeClosed(Board.PIT_RANGE_P2.getMinimumInteger(), Board.MACALA_INDEX_P2)
+		IntStream.rangeClosed(KalahBoard.PIT_RANGE_P2.getMinimumInteger(), KalahBoard.MACALA_INDEX_P2)
 		.forEach(i -> boardP2.add(board.getSeedsInPit(i)));
 	}
 

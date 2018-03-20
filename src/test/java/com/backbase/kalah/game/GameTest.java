@@ -3,6 +3,7 @@
  */
 package com.backbase.kalah.game;
 
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Arrays;
@@ -22,45 +23,50 @@ public class GameTest {
 	private static final int DEFAULT_SEED_NUM = 6;
 	
 	@Test
-	public void gameStartsWith6Seeds() {
-		Game game = createGame(DEFAULT_SEED_NUM);
+	public void gameStartsWithPlayerTurn() {
+		KalahGame game = createGame(DEFAULT_SEED_NUM);
 		assertThat(game.getId()).isNotEqualTo(null);
-		assertThat(game.getBoard().getSeedsInPit(0)).isEqualTo(DEFAULT_SEED_NUM);
 		assertThat(game.getTurn()).isIn(Arrays.asList(Player.values()));
-		assertThat(game.getStatus()).isEqualTo(Status.STARTED);
+		assertThat(game.getStatus()).isEqualTo(Status.ON_GOING);
 	}
 	
-	@Test(expected = IllegalArgumentException.class)
-	public void gameDontStartWithNoSeeds() {
-		Game game = createGame(0);
+	@Test(expected = KalahBrokenRuleException.class)
+	public void gameCantStartWithNoSeeds() {
+		KalahGame game = createGame(0);
 		assertThat(game.getId()).isEqualTo(null);
 		assertThat(game.getStatus()).isNotIn(Arrays.asList(Status.values()));
 	}
 	
-	@Test(expected = IllegalArgumentException.class)
-	public void playerCantMoveWioutTurn() {
-		Game game = createGame(DEFAULT_SEED_NUM);
+	@Test(expected = KalahBrokenRuleException.class)
+	public void cantMoveInInvalidPit() {
+		KalahGame game = createGame(DEFAULT_SEED_NUM);
+		int pit = KalahBoard.PIT_RANGE_P2.getMaximumInteger();
+		game.move(game.getTurn(), pit);
+	}
+	
+	@Test(expected = KalahBrokenRuleException.class)
+	public void playerCantMoveWithoutTurn() {
+		KalahGame game = createGame(DEFAULT_SEED_NUM);
 		Player turn = game.getTurn().equals(Player.PLAYER_1) ? Player.PLAYER_2: Player.PLAYER_1; 
 		game.move(turn, 1);
 	}
 	
-	@Test(expected = IllegalArgumentException.class)
-	public void testValidPitInMove() {
-		Game game = createGame(DEFAULT_SEED_NUM);
-		int pit = Board.PIT_RANGE_P2.getMaximumInteger();
-		game.move(game.getTurn(), pit);
+	@Test(expected = KalahBrokenRuleException.class)
+	public void testInvalidPlayer() {
+		KalahGame game = createGame(DEFAULT_SEED_NUM);
+		game.move(null, 2);
 	}
 	
 	@Test
 	public void testTurnSwitch() {
-		Game game = createGame(DEFAULT_SEED_NUM);
+		KalahGame game = createGame(DEFAULT_SEED_NUM);
 		Player firstTurn = game.getTurn();
 		game.move(firstTurn, 2);
 		assertThat(game.getTurn()).isNotEqualTo(firstTurn);		
 	}
 	
-	private Game createGame(final int seedNumber) {
-		Game game = new Game(seedNumber);
+	private KalahGame createGame(final int seedNumber) {
+		KalahGame game = new KalahGame(seedNumber);
 		return game;
 	}
 	
