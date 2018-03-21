@@ -101,7 +101,7 @@ id=[string] game Id that is returned when the game is started
 
 * #### Request Body Example
 
-{"player" : "player_1", pit : "1"}
+{"player" : "player_1", "pit" : "1"}
 
 
 #### Success Response
@@ -121,6 +121,9 @@ id=[string] game Id that is returned when the game is started
 
   * **Code:** 403 FORBIDDEN <br />
     **Content:** `{ error : "It' not player_2's turn" }`
+    
+  * **Code:** 403 FORBIDDEN <br />
+	**Content:** `{ error : "Illegal move, pit 1 does not have any seeds" }`
     
   * **Code:** 403 FORBIDDEN <br />
     **Content:** `{ error : "Illegal move, player_1 may only take seeds from pit 1 to 6" }`
