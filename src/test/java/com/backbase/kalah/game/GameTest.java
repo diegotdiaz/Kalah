@@ -45,6 +45,16 @@ public class GameTest {
 	}
 	
 	@Test(expected = KalahBrokenRuleException.class)
+	public void cantMoveWithNoSeeds() {
+		KalahGame game = createGame(0);
+		int pit = 1;
+		
+		//In 6 seeds game turn won't change if moving from firs pit
+		game.move(game.getTurn(), pit);
+		game.move(game.getTurn(), pit);
+	}
+	
+	@Test(expected = KalahBrokenRuleException.class)
 	public void playerCantMoveWithoutTurn() {
 		KalahGame game = createGame(DEFAULT_SEED_NUM);
 		Player turn = game.getTurn().equals(Player.PLAYER_1) ? Player.PLAYER_2: Player.PLAYER_1; 

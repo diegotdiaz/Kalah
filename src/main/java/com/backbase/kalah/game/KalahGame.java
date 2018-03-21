@@ -64,6 +64,11 @@ public class KalahGame {
 		int startPitIndex = player.equals(Player.PLAYER_1) ? zeroBasedPitIndex :  pitIndex + 6;
 		
 		int seeds = board.getSeedsInPit(startPitIndex);
+		
+		if (seeds == 0) {
+			throw new KalahBrokenRuleException(String.format(MESSAGE_NO_SEEDS, pitIndex));
+		}
+		
 		board.removeSeedsInPit(startPitIndex);
 		
 		for (int i = startPitIndex + 1; seeds > 0; i++, seeds--) {
