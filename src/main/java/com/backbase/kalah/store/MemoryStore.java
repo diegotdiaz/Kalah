@@ -5,6 +5,7 @@ package com.backbase.kalah.store;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import org.springframework.stereotype.Component;
 
@@ -30,8 +31,9 @@ public final class MemoryStore implements GameStore {
 	}
 
 	@Override
-	public void deleteGame(String gameId) {
-		store.remove(gameId);
+	public Optional<KalahGame> deleteGame(String gameId) {
+		Optional<KalahGame> game = Optional.of(store.remove(gameId));
+		return game;
 	}
 
 }

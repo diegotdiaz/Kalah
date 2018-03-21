@@ -3,6 +3,8 @@
  */
 package com.backbase.kalah.store;
 
+import java.util.Optional;
+
 import com.backbase.kalah.game.KalahGame;
 
 /**
@@ -15,6 +17,6 @@ public interface GameStore {
 	
 	public KalahGame getGame(String gameId);
 	
-	public void deleteGame(String gameId);
+	public Optional<KalahGame> deleteGame(String gameId);
 
 }

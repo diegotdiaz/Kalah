@@ -4,7 +4,7 @@
 package com.backbase.kalah.game;
 
 /**
- * Enum to determine game status
+ * Enumerator to determine game status
  * 
  * @author diegotoro
  */

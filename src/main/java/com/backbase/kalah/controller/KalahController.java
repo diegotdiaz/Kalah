@@ -3,6 +3,8 @@
  */
 package com.backbase.kalah.controller;
 
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
@@ -21,6 +23,8 @@ import com.backbase.kalah.game.KalahGameDTO;
 import com.backbase.kalah.game.KalahBrokenRuleException;
 import com.backbase.kalah.game.MoveRequestDTO;
 import com.backbase.kalah.store.GameStore;
+
+import static com.backbase.kalah.util.Messages.*;
    
 /**
  * 
@@ -47,9 +51,15 @@ public class KalahController {
 	 */
 	@RequestMapping(value = "/start/{seedNumber}", method =  RequestMethod.POST)
 	public ResponseEntity<KalahGameDTO> startGame(@PathVariable(value = "seedNumber", required = true) Integer seedNumber) {
-		KalahGame game = new KalahGame(seedNumber);
-		getStore().putGame(game.getId(), game);
-		return ResponseEntity.status(HttpStatus.CREATED).body(KalahGameDTO.getInstance(game));
+		try {
+			KalahGame game = new KalahGame(seedNumber);
+			getStore().putGame(game.getId(), game);
+			return ResponseEntity.status(HttpStatus.CREATED).body(KalahGameDTO.getInstance(game));
+		} catch (KalahBrokenRuleException e) {
+			return ResponseEntity.status(HttpStatus.FORBIDDEN)
+					.body(KalahGameDTO.getInstance(e.getMessage()));
+		}
+		
 	}
 	
 	/**
@@ -65,12 +75,12 @@ public class KalahController {
 		KalahGame game = getStore().getGame(gameId);
 		if (game == null) {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND)
-					.body(KalahGameDTO.getInstance(String.format("Game with ID %s was not found", gameId)));
+					.body(KalahGameDTO.getInstance(String.format(MESSAGE_NOT_FOUND, gameId)));
 		}
 		try {
 			game.move(moveRequest.getPlayer(), moveRequest.getPit());
 		} catch (KalahBrokenRuleException e) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+			return ResponseEntity.status(HttpStatus.FORBIDDEN)
 					.body(KalahGameDTO.getInstance(e.getMessage()));
 		}
 		getStore().putGame(gameId, game);
@@ -82,8 +92,13 @@ public class KalahController {
 	 * @param gameId
 	 * @return
 	 */
-	@RequestMapping(value = "/status/{gameId}", method =  RequestMethod.GET)
-	public ResponseEntity<KalahGameDTO> status(@PathVariable(value = "gameId", required = true) String gameId) {		
+	@RequestMapping(value = "/id/{gameId}", method =  RequestMethod.GET)
+	public ResponseEntity<KalahGameDTO> getGame(@PathVariable(value = "gameId", required = true) String gameId) {		
+		KalahGame game= getStore().getGame(gameId);
+		if (game == null) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND)
+					.body(KalahGameDTO.getInstance(String.format(MESSAGE_NOT_FOUND, gameId)));
+		}
 		return ResponseEntity.ok(KalahGameDTO.getInstance(store.getGame(gameId)));
 	}
 	
@@ -91,10 +106,14 @@ public class KalahController {
 	 * End point to delete specified game from the store.
 	 * @param gameId
 	 */
-	@RequestMapping(value = "/id", method =  RequestMethod.DELETE)
+	@RequestMapping(value = "/id/{gameId}", method =  RequestMethod.DELETE)
 	public ResponseEntity<Void> deleteGame(@PathVariable(value = "gameId", required = true) String gameId) {		
-		getStore().deleteGame(gameId);
-		return new ResponseEntity<Void>(HttpStatus.ACCEPTED);
+		Optional<KalahGame> game = getStore().deleteGame(gameId);
+		if (game.isPresent()) {
+			return new ResponseEntity<Void>(HttpStatus.ACCEPTED);
+		} else {
+			return new ResponseEntity<Void>(HttpStatus.NOT_FOUND);
+		}	
 	}
 	
 	/**
