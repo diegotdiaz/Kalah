@@ -32,7 +32,7 @@ public final class MemoryStore implements GameStore {
 
 	@Override
 	public Optional<KalahGame> deleteGame(String gameId) {
-		Optional<KalahGame> game = Optional.of(store.remove(gameId));
+		Optional<KalahGame> game = Optional.ofNullable(store.remove(gameId));
 		return game;
 	}
 

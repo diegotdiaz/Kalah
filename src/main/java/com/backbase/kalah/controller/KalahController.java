@@ -27,7 +27,7 @@ import com.backbase.kalah.store.GameStore;
 import static com.backbase.kalah.util.Messages.*;
    
 /**
- * 
+ * Kalah game controller
  * @author diegotoro
  *
  */

@@ -6,6 +6,12 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.backbase.kalah.util.Messages;
+/**
+ * Controller to verify application status
+ * @author dtoro
+ *
+ */
 @RestController
 @RequestMapping("/ecv")
 public class StatusController {
@@ -13,6 +19,6 @@ public class StatusController {
 	@ResponseBody
 	@RequestMapping(method = RequestMethod.GET)
 	public ResponseEntity<String> status() {
-		return ResponseEntity.ok("Kalah App is Up");
+		return ResponseEntity.ok(Messages.MESSAGE_APP_IS_UP);
 	}
 }
