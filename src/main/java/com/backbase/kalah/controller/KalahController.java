@@ -3,6 +3,8 @@
  */
 package com.backbase.kalah.controller;
 
+import static com.backbase.kalah.util.Messages.MESSAGE_NOT_FOUND;
+
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,13 +20,11 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.annotation.ApplicationScope;
 
+import com.backbase.kalah.game.KalahBrokenRuleException;
 import com.backbase.kalah.game.KalahGame;
 import com.backbase.kalah.game.KalahGameDTO;
-import com.backbase.kalah.game.KalahBrokenRuleException;
 import com.backbase.kalah.game.MoveRequestDTO;
 import com.backbase.kalah.store.GameStore;
-
-import static com.backbase.kalah.util.Messages.*;
    
 /**
  * Kalah game controller
