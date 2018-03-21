@@ -155,7 +155,7 @@ public class KalahGame {
 			throw new KalahBrokenRuleException(String.format(MESSAGE_WRONG_TURN, player));
 		}
 		
-		boolean validHouseIndex = KalahBoard.PIT_RANGE_P1.containsInteger(pitIndex - 1);
+		boolean validHouseIndex = KalahBoard.PIT_RANGE_P1.containsInteger(pitIndex);
 		
 		if (!validHouseIndex) {
 			throw new KalahBrokenRuleException(String.format(MESSAGE_ILLEGAL_MOVE, 

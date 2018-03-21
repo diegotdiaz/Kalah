@@ -23,5 +23,9 @@ public class MoveRequestDTO {
 		this.player = player;
 		this.pit = pit;
 	}
+	
+	public MoveRequestDTO() {
+		super();
+	}
 
 }
