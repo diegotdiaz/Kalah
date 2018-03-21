@@ -24,10 +24,13 @@ Note: It's recommended to clean and update your dependencies before running for 
 $ mvn clean -U
 ```
 
-Verify that the application is up and running in port 8080 e.g.
+Verify that the application is up and running in port 8080:
 ```sh
-http://127.0.0.1:8080
+http://127.0.0.1:8080/ecv
 ```
+#### Success Response
+
+* #### Code: 200 "Kalah App is Up"
 
 ## Game Reference
 Kalah game rules can be seen in: https://en.wikipedia.org/wiki/Kalah
